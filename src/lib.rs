@@ -1,4 +1,23 @@
-//! A simple crate for working with fractions
+//! A simple, lightweight crate for fraction arithmetic.
+//!
+//! This crate provides a `Fraction` type that supports basic arithmetic operations
+//! with automatic reduction to lowest terms.
+//!
+//! # Examples
+//!
+//! ```
+//! use fractions::Fraction;
+//!
+//! let half = Fraction::new(1, 2)?;
+//! let third = Fraction::new(1, 3)?;
+//!
+//! let sum = half + third;
+//! assert_eq!(sum.to_string(), "5/6");
+//!
+//! let product = half * third;
+//! assert_eq!(product.to_string(), "1/6");
+//! # Ok::<(), fractions::FractionError>(())
+//! ```
 
 use std::cmp::Ordering;
 use std::fmt;
@@ -25,6 +44,9 @@ impl fmt::Display for FractionError {
 impl std::error::Error for FractionError {}
 
 /// A fraction with numerator and denominator.
+///
+/// Fractions are automatically reduced to lowest terms when displayed.
+/// The sign is always kept in the numerator.
 #[derive(Debug, Clone, Copy)]
 pub struct Fraction {
     numerator: i64,
@@ -33,6 +55,21 @@ pub struct Fraction {
 
 impl Fraction {
     /// Creates a new fraction.
+    ///
+    /// # Errors
+    ///
+    /// Returns `FractionError::ZeroDenominator` if denominator is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let frac = Fraction::new(3, 4)?;
+    /// assert_eq!(frac.numerator(), 3);
+    /// assert_eq!(frac.denominator(), 4);
+    /// # Ok::<(), fractions::FractionError>(())
+    /// ```
     pub fn new(numerator: i64, denominator: i64) -> Result<Self, FractionError> {
         if denominator == 0 {
             return Err(FractionError::ZeroDenominator);
@@ -98,6 +135,21 @@ impl Fraction {
     }
 
     /// Returns the reciprocal of the fraction.
+    ///
+    /// # Errors
+    ///
+    /// Returns `FractionError::DivisionByZero` if the numerator is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let frac = Fraction::new(3, 4)?;
+    /// let recip = frac.reciprocal()?;
+    /// assert_eq!(recip.to_string(), "4/3");
+    /// # Ok::<(), fractions::FractionError>(())
+    /// ```
     pub fn reciprocal(&self) -> Result<Self, FractionError> {
         if self.numerator == 0 {
             return Err(FractionError::DivisionByZero);
@@ -136,6 +188,17 @@ impl Fraction {
     }
 
     /// Reduces the fraction to lowest terms.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let frac = Fraction::new(12, 8)?;
+    /// let reduced = frac.reduce();
+    /// assert_eq!(reduced.to_string(), "3/2");
+    /// # Ok::<(), fractions::FractionError>(())
+    /// ```
     pub fn reduce(&self) -> Self {
         let gcd = gcd(self.numerator.abs(), self.denominator.abs());
         Self {
