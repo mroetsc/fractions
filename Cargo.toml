@@ -2,5 +2,20 @@
 name = "fractions"
 version = "0.1.0"
 edition = "2024"
+authors = ["Mattes Rötschke <dev@mattes-roetschke.de>"]
+description = "A simple, lightweight crate for fraction arithmetic"
+documentation = "https://docs.rs/fractions"
+homepage = "https://github.com/mroetsc/fractions"
+repository = "https://github.com/mroetsc/fractions"
+readme = "README.md"
+keywords = ["fraction", "math", "arithmetic", "rational", "numerics"]
+categories = ["mathematics", "algorithms"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
+
+[[example]]
+name = "calculator"
+
+[badges]
+maintenance = { status = "actively-developed" }
