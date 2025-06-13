@@ -49,6 +49,44 @@ impl Fraction {
         })
     }
 
+    /// Returns the reciprocal of the fraction.
+    pub fn reciprocal(&self) -> Result<Self, FractionError> {
+        if self.numerator == 0 {
+            return Err(FractionError::DivisionByZero);
+        }
+        Self::new(self.denominator, self.numerator)
+    }
+
+    /// Adds two fractions.
+    pub fn add(&self, other: &Self) -> Self {
+        Self {
+            numerator: self.numerator * other.denominator + other.numerator * self.denominator,
+            denominator: self.denominator * other.denominator,
+        }
+    }
+
+    /// Subtracts two fractions.
+    pub fn subtract(&self, other: &Self) -> Self {
+        Self {
+            numerator: self.numerator * other.denominator - other.numerator * self.denominator,
+            denominator: self.denominator * other.denominator,
+        }
+    }
+
+    /// Multiplies two fractions.
+    pub fn multiply(&self, other: &Self) -> Self {
+        Self {
+            numerator: self.numerator * other.numerator,
+            denominator: self.denominator * other.denominator,
+        }
+    }
+
+    /// Divides two fractions.
+    pub fn divide(&self, other: &Self) -> Result<Self, FractionError> {
+        let recip = other.reciprocal()?;
+        Ok(self.multiply(&recip))
+    }
+
     /// Reduces the fraction to lowest terms.
     pub fn reduce(&self) -> Self {
         let gcd = gcd(self.numerator.abs(), self.denominator.abs());
@@ -110,5 +148,27 @@ mod tests {
         assert_eq!(Fraction::new(3, 4).unwrap().to_string(), "3/4");
         assert_eq!(Fraction::new(4, 2).unwrap().to_string(), "2");
         assert_eq!(Fraction::new(-3, 4).unwrap().to_string(), "-3/4");
+    }
+
+    #[test]
+    fn test_arithmetic() {
+        let half = Fraction::new(1, 2).unwrap();
+        let third = Fraction::new(1, 3).unwrap();
+
+        let sum = half.add(&third).reduce();
+        assert_eq!(sum.numerator, 5);
+        assert_eq!(sum.denominator, 6);
+
+        let diff = half.subtract(&third).reduce();
+        assert_eq!(diff.numerator, 1);
+        assert_eq!(diff.denominator, 6);
+
+        let product = half.multiply(&third).reduce();
+        assert_eq!(product.numerator, 1);
+        assert_eq!(product.denominator, 6);
+
+        let quotient = half.divide(&third).unwrap().reduce();
+        assert_eq!(quotient.numerator, 3);
+        assert_eq!(quotient.denominator, 2);
     }
 }
