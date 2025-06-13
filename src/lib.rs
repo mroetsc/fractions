@@ -244,6 +244,20 @@ impl Neg for Fraction {
     }
 }
 
+impl From<i64> for Fraction {
+    fn from(n: i64) -> Self {
+        Self::from_integer(n)
+    }
+}
+
+impl TryFrom<(i64, i64)> for Fraction {
+    type Error = FractionError;
+
+    fn try_from(value: (i64, i64)) -> Result<Self, Self::Error> {
+        Self::new(value.0, value.1)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -360,5 +374,17 @@ mod tests {
 
         assert_eq!(neg_half.abs(), half);
         assert_eq!(five.to_string(), "5");
+    }
+
+    #[test]
+    fn test_conversions() {
+        let five: Fraction = 5.into();
+        assert_eq!(five, Fraction::new(5, 1).unwrap());
+
+        let frac: Fraction = (3, 4).try_into().unwrap();
+        assert_eq!(frac, Fraction::new(3, 4).unwrap());
+
+        let zero_den: Result<Fraction, _> = (1, 0).try_into();
+        assert!(zero_den.is_err());
     }
 }
