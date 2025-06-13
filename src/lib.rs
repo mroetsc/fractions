@@ -1,5 +1,6 @@
 //! A simple crate for working with fractions
 
+use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -24,7 +25,7 @@ impl fmt::Display for FractionError {
 impl std::error::Error for FractionError {}
 
 /// A fraction with numerator and denominator.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct Fraction {
     numerator: i64,
     denominator: i64,
@@ -116,6 +117,26 @@ impl fmt::Display for Fraction {
         } else {
             write!(f, "{}/{}", reduced.numerator, reduced.denominator)
         }
+    }
+}
+
+impl PartialEq for Fraction {
+    fn eq(&self, other: &Self) -> bool {
+        self.numerator * other.denominator == other.numerator * self.denominator
+    }
+}
+
+impl Eq for Fraction {}
+
+impl PartialOrd for Fraction {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Fraction {
+    fn cmp(&self, other: &Self) -> Ordering {
+        (self.numerator * other.denominator).cmp(&(other.numerator * self.denominator))
     }
 }
 
@@ -255,5 +276,17 @@ mod tests {
         let neg = -half;
         assert_eq!(neg.numerator, -1);
         assert_eq!(neg.denominator, 2);
+    }
+
+    #[test]
+    fn test_comparison() {
+        let half = Fraction::new(1, 2).unwrap();
+        let third = Fraction::new(1, 3).unwrap();
+        let also_half = Fraction::new(2, 4).unwrap();
+
+        assert!(half > third);
+        assert!(third < half);
+        assert_eq!(half, also_half);
+        assert_ne!(half, third);
     }
 }
