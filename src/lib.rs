@@ -48,6 +48,36 @@ impl Fraction {
             denominator: den,
         })
     }
+
+    /// Reduces the fraction to lowest terms.
+    pub fn reduce(&self) -> Self {
+        let gcd = gcd(self.numerator.abs(), self.denominator.abs());
+        Self {
+            numerator: self.numerator / gcd,
+            denominator: self.denominator / gcd,
+        }
+    }
+}
+
+/// Calculates the greatest common divisor using Euclid's algorithm.
+fn gcd(mut a: i64, mut b: i64) -> i64 {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    a
+}
+
+impl fmt::Display for Fraction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let reduced = self.reduce();
+        if reduced.denominator == 1 {
+            write!(f, "{}", reduced.numerator)
+        } else {
+            write!(f, "{}/{}", reduced.numerator, reduced.denominator)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -65,5 +95,20 @@ mod tests {
         let frac = Fraction::new(1, -2).unwrap();
         assert_eq!(frac.numerator, -1);
         assert_eq!(frac.denominator, 2);
+    }
+
+    #[test]
+    fn test_reduce() {
+        let frac = Fraction::new(12, 8).unwrap();
+        let reduced = frac.reduce();
+        assert_eq!(reduced.numerator, 3);
+        assert_eq!(reduced.denominator, 2);
+    }
+
+    #[test]
+    fn test_display() {
+        assert_eq!(Fraction::new(3, 4).unwrap().to_string(), "3/4");
+        assert_eq!(Fraction::new(4, 2).unwrap().to_string(), "2");
+        assert_eq!(Fraction::new(-3, 4).unwrap().to_string(), "-3/4");
     }
 }
