@@ -51,6 +51,52 @@ impl Fraction {
         })
     }
 
+    /// Creates a fraction representing a whole number.
+    pub fn from_integer(n: i64) -> Self {
+        Self {
+            numerator: n,
+            denominator: 1,
+        }
+    }
+
+    /// Returns the numerator.
+    pub fn numerator(&self) -> i64 {
+        self.numerator
+    }
+
+    /// Returns the denominator.
+    pub fn denominator(&self) -> i64 {
+        self.denominator
+    }
+
+    /// Converts the fraction to a floating-point number.
+    pub fn to_f64(&self) -> f64 {
+        self.numerator as f64 / self.denominator as f64
+    }
+
+    /// Returns the absolute value of the fraction.
+    pub fn abs(&self) -> Self {
+        Self {
+            numerator: self.numerator.abs(),
+            denominator: self.denominator,
+        }
+    }
+
+    /// Checks if the fraction is positive.
+    pub fn is_positive(&self) -> bool {
+        self.numerator > 0
+    }
+
+    /// Checks if the fraction is negative.
+    pub fn is_negative(&self) -> bool {
+        self.numerator < 0
+    }
+
+    /// Checks if the fraction is zero.
+    pub fn is_zero(&self) -> bool {
+        self.numerator == 0
+    }
+
     /// Returns the reciprocal of the fraction.
     pub fn reciprocal(&self) -> Result<Self, FractionError> {
         if self.numerator == 0 {
@@ -288,5 +334,31 @@ mod tests {
         assert!(third < half);
         assert_eq!(half, also_half);
         assert_ne!(half, third);
+    }
+
+    #[test]
+    fn test_utility_methods() {
+        let half = Fraction::new(1, 2).unwrap();
+        let neg_half = Fraction::new(-1, 2).unwrap();
+        let zero = Fraction::from_integer(0);
+        let five = Fraction::from_integer(5);
+
+        assert_eq!(half.numerator(), 1);
+        assert_eq!(half.denominator(), 2);
+        assert_eq!(half.to_f64(), 0.5);
+
+        assert!(half.is_positive());
+        assert!(!half.is_negative());
+        assert!(!half.is_zero());
+
+        assert!(neg_half.is_negative());
+        assert!(!neg_half.is_positive());
+
+        assert!(zero.is_zero());
+        assert!(!zero.is_positive());
+        assert!(!zero.is_negative());
+
+        assert_eq!(neg_half.abs(), half);
+        assert_eq!(five.to_string(), "5");
     }
 }
