@@ -1,6 +1,7 @@
 //! A simple crate for working with fractions
 
 use std::fmt;
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 /// Error types for fraction operations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -118,6 +119,64 @@ impl fmt::Display for Fraction {
     }
 }
 
+impl Add for Fraction {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self {
+            numerator: self.numerator * other.denominator + other.numerator * self.denominator,
+            denominator: self.denominator * other.denominator,
+        }
+    }
+}
+
+impl Sub for Fraction {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Self {
+            numerator: self.numerator * other.denominator - other.numerator * self.denominator,
+            denominator: self.denominator * other.denominator,
+        }
+    }
+}
+
+impl Mul for Fraction {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self::Output {
+        Self {
+            numerator: self.numerator * other.numerator,
+            denominator: self.denominator * other.denominator,
+        }
+    }
+}
+
+impl Div for Fraction {
+    type Output = Result<Self, FractionError>;
+
+    fn div(self, other: Self) -> Self::Output {
+        if other.numerator == 0 {
+            return Err(FractionError::DivisionByZero);
+        }
+        Ok(Self {
+            numerator: self.numerator * other.denominator,
+            denominator: self.denominator * other.numerator,
+        })
+    }
+}
+
+impl Neg for Fraction {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self {
+            numerator: -self.numerator,
+            denominator: self.denominator,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -155,7 +214,7 @@ mod tests {
         let half = Fraction::new(1, 2).unwrap();
         let third = Fraction::new(1, 3).unwrap();
 
-        let sum = half.add(&third).reduce();
+        let sum = half.add(third).reduce();
         assert_eq!(sum.numerator, 5);
         assert_eq!(sum.denominator, 6);
 
@@ -170,5 +229,31 @@ mod tests {
         let quotient = half.divide(&third).unwrap().reduce();
         assert_eq!(quotient.numerator, 3);
         assert_eq!(quotient.denominator, 2);
+    }
+
+    #[test]
+    fn test_operators() {
+        let half = Fraction::new(1, 2).unwrap();
+        let third = Fraction::new(1, 3).unwrap();
+
+        let sum = (half + third).reduce();
+        assert_eq!(sum.numerator, 5);
+        assert_eq!(sum.denominator, 6);
+
+        let diff = (half - third).reduce();
+        assert_eq!(diff.numerator, 1);
+        assert_eq!(diff.denominator, 6);
+
+        let product = (half * third).reduce();
+        assert_eq!(product.numerator, 1);
+        assert_eq!(product.denominator, 6);
+
+        let quotient = (half / third).unwrap().reduce();
+        assert_eq!(quotient.numerator, 3);
+        assert_eq!(quotient.denominator, 2);
+
+        let neg = -half;
+        assert_eq!(neg.numerator, -1);
+        assert_eq!(neg.denominator, 2);
     }
 }
